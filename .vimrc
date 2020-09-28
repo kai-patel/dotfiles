@@ -3,7 +3,7 @@
 set nocompatible
 
 "Colour Scheme
-colorscheme peachpuff
+colorscheme murphy
 
 "Row numbers
 set number
@@ -57,20 +57,20 @@ set omnifunc=syntaxcomplete#Complete
 syntax enable
 
 "Filetype-specific commands for each time a file is saved
-augroup python_settings " {
-    autocmd!
-    autocmd FileType python compiler pylint
-    autocmd BufWritePost *.py :make %
-augroup END " }
+"augroup python_settings " {
+"    autocmd!
+"    autocmd FileType python compiler pylint
+"    autocmd BufWritePost *.py :make %
+"augroup END " }
 
 "Mandatory settings for muComplete plugin
 set completeopt+=menuone
 set completeopt+=noselect   " alternatively use: set completeopt+=noinsert
 
 "Recommended settings for muComplete plugin
-set shortmess+=c "disable completion messages
-set belloff+=ctrlg "if bell rings during completion
-let g:mucomplete#enable_auto_at_startup = 1 "enable on startup
+"set shortmess+=c "disable completion messages
+"set belloff+=ctrlg "if bell rings during completion
+"let g:mucomplete#enable_auto_at_startup = 1 "enable on startup
 
 "muComplete popup delay
 "let g:mucomplete#completion_delay = 1
