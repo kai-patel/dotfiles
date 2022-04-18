@@ -139,6 +139,9 @@ endfunction
 " The actual binding for the above
 inoremap <tab> <c-r>=Smart_TabComplete()<CR>
 
+" Turn off errorbell for Esc in Normal mode
+set belloff=esc
+
 " Always show mode
 set showmode
 
