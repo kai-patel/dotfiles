@@ -5,6 +5,8 @@
 
 ;;; Code:
 
+(require 'package)
+
 (load-theme 'gruber-darker t) ; theme
 
 ;;; Menu bars
@@ -16,6 +18,12 @@
 
 (setq inhibit-startup-screen 1) ; no start screen
 (fset 'yes-or-no-p 'y-or-n-p) ; y/n instead of yes/no
+
+;; Make sure that the bash executable can be found
+(when (eq system-type 'windows-nt)
+  (setq explicit-shell-file-name "C:/cygwin64/bin/bash.exe")
+  (setq shell-file-name explicit-shell-file-name)
+  (add-to-list 'exec-path "C:/cygwin64/bin"))
 
 ;;; Font face
 (set-frame-font "Fira Code Retina 12" nil t)
@@ -29,18 +37,21 @@
 (setq tab-width 4)
 (setq c-basic-offset 4) ; assert equal c-basic-offset tab-width
 
-;;; Disable auto-indent for org-mode
-(add-hook 'org-mode-hook
-          (lambda () (electric-indent-local-mode -1)))
-
 ;;; Change backup file storage location
 (setq backup-directory-alist `(("." . "~/.emacs_saves")))
 
+;;; Disable error bell
+(setq ring-bell-function 'ignore)
+
 ;;; Add MELPA repo and refresh
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
+
+(package-initialize)
+
+(unless package-archive-contents
+  (package-refresh-contents))
+(package-install 'use-package)
 
 ;;; Undo-Tree
 (use-package undo-tree
@@ -57,6 +68,7 @@
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
   (setq evil-want-keybinding nil)
   (setq evil-undo-system 'undo-tree)
+  (setq evil-want-C-u-scroll t)
   :config
   (evil-mode 1))
 
@@ -67,17 +79,17 @@
   :config
   (evil-collection-init))
 
-;;; Projectile (project management)
-(use-package projectile
-  :ensure t
-  :config
-  (projectile-mode))
-
-;;; Helm projectile support
-(use-package helm-projectile
-  :ensure t
-  :config
-  (helm-projectile-on))
+;;;; Projectile (project management)
+;(use-package projectile
+;  :ensure t
+;  :config
+;  (projectile-mode))
+;
+;;;; Helm projectile support
+;(use-package helm-projectile
+;  :ensure t
+;  :config
+;  (helm-projectile-on))
 
 (use-package which-key
   :ensure t
@@ -99,6 +111,7 @@
   (global-set-key (kbd "M-x") #'helm-M-x)
   (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
   (global-set-key (kbd "C-x C-f") #'helm-find-files)
+  (define-key helm-map (kbd "ESC") 'helm-keyboard-quit)
   (helm-mode 1))
 
 ;;; Company-mode (Autocomplete)
@@ -132,17 +145,9 @@
   (define-key global-map "\C-ca" 'org-agenda)
   (setq org-log-done t))
 
-;;; Flycheck
-(use-package flycheck
-  :ensure t
-  :init
-  (require 'flycheck)
-  :config
-  (add-hook 'after-init-hook #'global-flycheck-mode)
-  (setq flycheck-python-flake8-executable "python")
-  (setq flycheck-python-pycompile-executable "python")
-  (setq flycheck-python-pylint-executable "python")
-  (global-flycheck-mode))
+;;; Disable auto-indent for org-mode
+(add-hook 'org-mode-hook
+          (lambda () (electric-indent-local-mode -1)))
 
 ;;; Whitespace
 (require 'whitespace)
@@ -159,6 +164,45 @@
   :init
   (require 'haskell-mode))
 
+;;; SLIME (Common Lisp)
+(use-package slime
+  :ensure t
+  :config
+  (setq inferior-lisp-program (executable-find "sbcl"))
+  :init
+  (require 'slime)
+  (slime-setup))
+
+;;; Rust mode
+(use-package rust-mode
+  :ensure t
+  :init
+  (require 'rust-mode)
+  :config
+  (add-hook 'rust-mode-hook
+            (lambda () (setq indent-tabs-mode nil))))
+
+;;; Flycheck-rust
+(use-package flycheck-rust
+  :ensure t
+  :after (rust-mode flycheck)
+  :init
+  (require 'flycheck-rust))
+
+;;; Flycheck
+(use-package flycheck
+  :ensure t
+  :init
+  (require 'flycheck)
+  :config
+  (add-hook 'after-init-hook #'global-flycheck-mode)
+  (with-eval-after-load 'rust-mode
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  (setq flycheck-python-flake8-executable "python")
+  (setq flycheck-python-pycompile-executable "python")
+  (setq flycheck-python-pylint-executable "python")
+  (global-flycheck-mode))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -172,7 +216,7 @@
    '("5f824cddac6d892099a91c3f612fcf1b09bb6c322923d779216ab2094375c5ee" default))
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(haskell-mode whitespace ido ido-mode flycheck gruber-darker-theme company use-package undo-tree evil evil-collection multiple-cursors)))
+   '(flycheck-rust slime haskell-mode whitespace ido ido-mode flycheck gruber-darker-theme company use-package undo-tree evil evil-collection multiple-cursors)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
