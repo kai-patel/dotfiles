@@ -108,7 +108,7 @@ nnoremap k gk
 nnoremap gk k
 
 " Set shell zsh
-set shell=zsh
+"set shell=zsh
 
 " Rebind exiting of in-built terminal emulator
 tnoremap <Esc> <C-\><C-n>:bd!<CR>
@@ -137,7 +137,7 @@ function! Smart_TabComplete()
 endfunction
 
 " The actual binding for the above
-inoremap <tab> <c-r>=Smart_TabComplete()<CR>
+"inoremap <tab> <c-r>=Smart_TabComplete()<CR>
 
 " Turn off errorbell for Esc in Normal mode
 set belloff=esc
@@ -189,3 +189,91 @@ set statusline+=\ %p%%\
 hi User1 ctermbg=darkgray ctermfg=white guibg=darkgray guifg=white
 hi User2 ctermbg=lightgray ctermfg=black guibg=lightgray guifg=black
 hi User3 ctermbg=black ctermfg=white guibg=black guifg=white
+
+
+" PLUGINS
+" -------
+
+" Install vim-plug if not already installed
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+    execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
+Plug 'w0rp/ale'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"Plug 'ervandew/supertab' " Don't use with coc (messes up TAB to complete)
+Plug 'tpope/vim-commentary'
+Plug 'rust-lang/rust.vim'
+Plug 'pantharshit00/vim-prisma'
+Plug 'preservim/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'PhilRunninger/nerdtree-visual-selection'
+call plug#end()
+
+" ALE Config
+let g:ale_linters = {'rust': ['analyzer'], 'typescriptreact': ['eslint', 'prettier']}
+let g:ale_echo_msg_format = '%linter% -- %s'
+let g:ale_fixers = {'typescriptreact': ['prettier']}
+
+nnoremap <S-A-F> :ALEFix<CR>
+
+" Coc Config
+set updatetime=300 " Default 4000 (ms)
+set signcolumn=yes
+let g:coc_global_extensions = ['coc-rust-analyzer', '@yaegassy/coc-tailwindcss3', 'coc-tsserver', 'coc-clangd', 'coc-prisma']
+
+" Redefine <TAB> for coc autocompletion
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice.
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" Use <c-space> to trigger completion.
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call ShowDocumentation()<CR>
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
+
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" NERDTree Config
+" Start NERDTree when Vim starts with a directory argument.
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
+    \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | wincmd p | endif
+
