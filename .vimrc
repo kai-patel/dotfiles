@@ -219,7 +219,7 @@ call plug#end()
 " ALE Config
 let g:ale_linters = {'rust': ['analyzer'], 'typescriptreact': ['eslint', 'prettier']}
 let g:ale_echo_msg_format = '%linter% -- %s'
-let g:ale_fixers = {'typescriptreact': ['prettier']}
+let g:ale_fixers = {'typescriptreact': ['prettier'], 'python': ['black']}
 
 nnoremap <S-A-F> :ALEFix<CR>
 
@@ -237,8 +237,7 @@ inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
 " Make <CR> to accept selected completion item or notify coc.nvim to format
 " <C-g>u breaks current undo, please make your own choice.
-inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 function! CheckBackspace() abort
   let col = col('.') - 1
@@ -277,3 +276,5 @@ autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
     \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | wincmd p | endif
 
+" Toggle NERDTree
+nnoremap <silent> <C-_> :NERDTreeToggle<CR>
