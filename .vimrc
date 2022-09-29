@@ -2,6 +2,9 @@
 
 set nocompatible
 
+" Set leader
+let mapleader="#"
+
 " Colour Scheme
 "colorscheme elflord (dark scheme)
 colorscheme ron
@@ -142,6 +145,9 @@ endfunction
 " Turn off errorbell for Esc in Normal mode
 set belloff=esc
 
+" Limit max displayed popup menu items
+set pumheight=10
+
 " Always show mode
 set showmode
 
@@ -201,6 +207,9 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+" Make ALE and CoC work together (must occur before plugin loading)
+let g:ale_disable_lsp = 1
+
 call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
@@ -219,9 +228,11 @@ call plug#end()
 " ALE Config
 let g:ale_linters = {'rust': ['analyzer'], 'typescriptreact': ['eslint', 'prettier']}
 let g:ale_echo_msg_format = '%linter% -- %s'
-let g:ale_fixers = {'typescriptreact': ['prettier'], 'python': ['black']}
+let g:ale_fixers = {'typescriptreact': ['prettier'], 'python': ['black'], 'rust': 'rustfmt'}
 
 nnoremap <S-A-F> :ALEFix<CR>
+nnoremap g[ :ALEPrevious<CR>
+nnoremap g] :ALENext<CR>
 
 " Coc Config
 set updatetime=300 " Default 4000 (ms)
@@ -269,6 +280,11 @@ endfunction
 
 " Highlight the symbol and its references when holding the cursor.
 autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Applying codeAction to the selected region.
+" Example: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
 
 " NERDTree Config
 " Start NERDTree when Vim starts with a directory argument.
