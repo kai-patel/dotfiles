@@ -2,15 +2,19 @@
 
 set nocompatible
 
+" Allow mouse to resize splits (if terminal handles drag events)
+set mouse=n
+
 " Set leader
 let mapleader="#"
+let maplocalleader='z'
 
 " Colour Scheme
 "colorscheme elflord (dark scheme)
-colorscheme ron
+colorscheme default
 
 " Ensure colorscheme accuracy
-:set t_Co=256
+set t_Co=256
 
 " Subfolder searching (can be slow)
 :set path+=**
@@ -118,26 +122,26 @@ tnoremap <Esc> <C-\><C-n>:bd!<CR>
 
 " << Smart >> tab to autocomplete
 
-function! Smart_TabComplete()
-    let line = getline('.')
+" function! Smart_TabComplete()
+"     let line = getline('.')
 
-    let substr = strpart(line, -1, col('.')+1)
+"     let substr = strpart(line, -1, col('.')+1)
 
 
-    let substr = matchstr(substr, "[^ \t]*$")
-    if (strlen(substr)==0)
-        return "\<tab>"
-    endif
-    let has_period = match(substr, '\.') != -1
-    let has_slash = match(substr, '\/') != -1
-    if (!has_period && !has_slash)
-        return "\<C-X>\<C-P>"
-    elseif ( has_slash )
-        return "\<C-X>\<C-F>"
-    else
-        return "\<C-X>\<C-O>"
-    endif
-endfunction
+"     let substr = matchstr(substr, "[^ \t]*$")
+"     if (strlen(substr)==0)
+"         return "\<tab>"
+"     endif
+"     let has_period = match(substr, '\.') != -1
+"     let has_slash = match(substr, '\/') != -1
+"     if (!has_period && !has_slash)
+"         return "\<C-X>\<C-P>"
+"     elseif ( has_slash )
+"         return "\<C-X>\<C-F>"
+"     else
+"         return "\<C-X>\<C-O>"
+"     endif
+" endfunction
 
 " The actual binding for the above
 "inoremap <tab> <c-r>=Smart_TabComplete()<CR>
@@ -196,6 +200,9 @@ hi User1 ctermbg=darkgray ctermfg=white guibg=darkgray guifg=white
 hi User2 ctermbg=lightgray ctermfg=black guibg=lightgray guifg=black
 hi User3 ctermbg=black ctermfg=white guibg=black guifg=white
 
+" Neovim Python Provider
+let g:python3_host_prog = 'python'
+
 
 " PLUGINS
 " -------
@@ -207,37 +214,79 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+" Turn on/off ALE
+let g:ale_enabled = 0
+
 " Make ALE and CoC work together (must occur before plugin loading)
 let g:ale_disable_lsp = 1
 
 call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
 Plug 'w0rp/ale'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-"Plug 'ervandew/supertab' " Don't use with coc (messes up TAB to complete)
+"Plug 'ervandew/supertab' Don't use with coc (messes up TAB to complete)
 Plug 'tpope/vim-commentary'
 Plug 'rust-lang/rust.vim'
 Plug 'pantharshit00/vim-prisma'
 Plug 'preservim/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'PhilRunninger/nerdtree-visual-selection'
+Plug 'neovimhaskell/haskell-vim'
+Plug 'dhruvasagar/vim-dotoo'
+Plug 'OmniSharp/omnisharp-vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'DingDean/wgsl.vim'
+Plug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
+Plug 'wilmhub/vlime', {'rtp': 'vim/'}
+Plug 'evanleck/vim-svelte'
+" Plug 'kovisoft/slimv'
+Plug 'vimwiki/vimwiki'
+Plug 'mattn/calendar-vim'
 call plug#end()
 
-" ALE Config
-let g:ale_linters = {'rust': ['analyzer'], 'typescriptreact': ['eslint', 'prettier']}
-let g:ale_echo_msg_format = '%linter% -- %s'
-let g:ale_fixers = {'typescriptreact': ['prettier'], 'python': ['black'], 'rust': 'rustfmt'}
+" VLIME Config
+let g:vlime_cl_impl = "ros"
+function! VlimeBuildServerCommandFor_ros(vlime_loader, vlime_eval)
+    return ["ros", "run",
+                \ "--load", a:vlime_loader,
+                \ "--eval", a:vlime_eval]
+endfunction
 
-nnoremap <S-A-F> :ALEFix<CR>
-nnoremap g[ :ALEPrevious<CR>
-nnoremap g] :ALENext<CR>
+" SLIMV Config
+" let g:slimv_leader='z'
+" let g:slimv_lisp = "ros run"
+" let g:slimv_impl = 'sbcl'
+" let g:slimv_swank_cmd = '!ros run -l "~/.vim/plugged/slimv/slime/start-swank.lisp"'
+
+" Disable SLIMV (e.g. when both SLIMV and VLIME are installed)
+" let g:slimv_disable_lisp = 1
+
+" FZF Config
+nnoremap <leader>f :Files<CR>
+
+" ALE Config
+
+let g:ale_linters = {'rust': ['analyzer'], 'typescriptreact': ['eslint', 'prettier'], 'cs': ['OmniSharp']}
+let g:ale_echo_msg_format = '%linter% -- %s'
+let g:ale_fixers = {'typescriptreact': ['prettier'], 'python': ['black'], 'rust': ['rustfmt'], 'haskell': ['brittany'], 'json': ['prettier'], 'c': ['clang-format'], 'cpp': ['clang-format'], 'markdown': ['prettier']}
+
+" nnoremap <S-A-F> :ALEFix<CR>
+" nnoremap g[ :ALEPrevious<CR>
+" nnoremap g] :ALENext<CR>
+
+autocmd FileType cs nmap <silent> <buffer> <S-A-F> <Plug>(omnisharp_code_format)
 
 " Coc Config
 set updatetime=300 " Default 4000 (ms)
 set signcolumn=yes
-let g:coc_global_extensions = ['coc-rust-analyzer', '@yaegassy/coc-tailwindcss3', 'coc-tsserver', 'coc-clangd', 'coc-prisma']
+let g:coc_global_extensions = ['coc-rust-analyzer', '@yaegassy/coc-tailwindcss3', 'coc-tsserver', 'coc-clangd', 'coc-prisma', 'coc-json', 'coc-omnisharp']
+
+nnoremap <S-A-F> :call CocActionAsync("format")<CR>
 
 " Redefine <TAB> for coc autocompletion
 inoremap <silent><expr> <TAB>
@@ -257,8 +306,29 @@ endfunction
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> g[ <Plug>(coc-diagnostic-prev)
+nmap <silent> g] <Plug>(coc-diagnostic-next)
+
+" Symbol renaming
+nmap <leader>r <Plug>(coc-rename)
+
+" Remap keys for applying refactor code actions
+nmap <silent> <leader>c <Plug>(coc-codeaction-refactor)
+xmap <silent> <leader>c <Plug>(coc-codeaction-refactor-selected)
+
+" Go to definition per LSP
+nmap <silent> <leader>g <Plug>(coc-definition)
+
+" Add `:OR` command for organize imports of the current buffer
+command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+
+
+" Mappings for CoCList
+" Show all diagnostics
+nnoremap <silent><nowait> <leader>d  :<C-u>CocList diagnostics<cr>
+
+" Find symbol of current document
+nnoremap <silent><nowait> <leader>o  :<C-u>CocList outline<cr>
 
 " Use <c-space> to trigger completion.
 if has('nvim')
@@ -281,10 +351,8 @@ endfunction
 " Highlight the symbol and its references when holding the cursor.
 autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" Applying codeAction to the selected region.
-" Example: `<leader>aap` for current paragraph
 xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-line)
 
 " NERDTree Config
 " Start NERDTree when Vim starts with a directory argument.
@@ -292,5 +360,13 @@ autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
     \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | wincmd p | endif
 
+" let NERDTreeIgnore=[]
+
 " Toggle NERDTree
 nnoremap <silent> <C-_> :NERDTreeToggle<CR>
+
+
+" Vimwiki Config
+let g:vimwiki_global_ext = 0
+let g:vimwiki_list = [{'auto_diary_index': 1}]
+
