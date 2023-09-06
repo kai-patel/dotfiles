@@ -9,6 +9,9 @@ set mouse=n
 let mapleader="#"
 let maplocalleader='z'
 
+" Buffer switching
+nnoremap <silent> <leader><leader> <C-^>
+
 " Colour Scheme
 "colorscheme elflord (dark scheme)
 colorscheme default
@@ -215,16 +218,16 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
 endif
 
 " Turn on/off ALE
-let g:ale_enabled = 0
+" let g:ale_enabled = 0
 
 " Make ALE and CoC work together (must occur before plugin loading)
-let g:ale_disable_lsp = 1
+" let g:ale_disable_lsp = 1
 
 call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-Plug 'w0rp/ale'
+" Plug 'w0rp/ale'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "Plug 'ervandew/supertab' Don't use with coc (messes up TAB to complete)
 Plug 'tpope/vim-commentary'
@@ -271,9 +274,9 @@ nnoremap <leader>f :Files<CR>
 
 " ALE Config
 
-let g:ale_linters = {'rust': ['analyzer'], 'typescriptreact': ['eslint', 'prettier'], 'cs': ['OmniSharp']}
-let g:ale_echo_msg_format = '%linter% -- %s'
-let g:ale_fixers = {'typescriptreact': ['prettier'], 'python': ['black'], 'rust': ['rustfmt'], 'haskell': ['brittany'], 'json': ['prettier'], 'c': ['clang-format'], 'cpp': ['clang-format'], 'markdown': ['prettier']}
+" let g:ale_linters = {'rust': ['analyzer'], 'typescriptreact': ['eslint', 'prettier'], 'cs': ['OmniSharp']}
+" let g:ale_echo_msg_format = '%linter% -- %s'
+" let g:ale_fixers = {'typescriptreact': ['prettier'], 'python': ['black'], 'rust': ['rustfmt'], 'haskell': ['brittany'], 'json': ['prettier'], 'c': ['clang-format'], 'cpp': ['clang-format'], 'markdown': ['prettier']}
 
 " nnoremap <S-A-F> :ALEFix<CR>
 " nnoremap g[ :ALEPrevious<CR>
