@@ -1,6 +1,7 @@
 " VIM CONFIG
 
 set nocompatible
+scriptencoding utf-8
 
 " Allow mouse to resize splits (if terminal handles drag events)
 set mouse=n
@@ -13,8 +14,8 @@ let maplocalleader='z'
 nnoremap <silent> <leader><leader> <C-^>
 
 " Colour Scheme
-"colorscheme elflord (dark scheme)
-colorscheme default
+colorscheme slate " (dark scheme)
+" colorscheme default
 
 " Ensure colorscheme accuracy
 set t_Co=256
@@ -32,7 +33,7 @@ set relativenumber
 
 " Show whitespace
 set list
-set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
+set listchars=tab:→\ ,trail:•,extends:#,nbsp:.
 
 " Show commands, enable menu
 set showcmd
@@ -121,7 +122,7 @@ nnoremap gk k
 "set shell=zsh
 
 " Rebind exiting of in-built terminal emulator
-tnoremap <Esc> <C-\><C-n>:bd!<CR>
+" tnoremap <Esc> <C-\><C-n>:bd!<CR>
 
 " << Smart >> tab to autocomplete
 
@@ -204,7 +205,16 @@ hi User2 ctermbg=lightgray ctermfg=black guibg=lightgray guifg=black
 hi User3 ctermbg=black ctermfg=white guibg=black guifg=white
 
 " Neovim Python Provider
-let g:python3_host_prog = 'python'
+" let g:python3_host_prog = 'python'
+
+let c='A'
+while c <= 'Z'
+  exec "set <A-".c.">=\e".c
+  exec "imap \e".c." <A-".c.">"
+  let c = nr2char(1+char2nr(c))
+endw
+
+set ttimeout ttimeoutlen=50
 
 
 " PLUGINS
@@ -227,38 +237,40 @@ call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-abolish'
 " Plug 'w0rp/ale'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-"Plug 'ervandew/supertab' Don't use with coc (messes up TAB to complete)
+" Plug 'ervandew/supertab' Don't use with coc (messes up TAB to complete)
 Plug 'tpope/vim-commentary'
-Plug 'rust-lang/rust.vim'
-Plug 'pantharshit00/vim-prisma'
+" Plug 'rust-lang/rust.vim'
+" Plug 'pantharshit00/vim-prisma'
 Plug 'preservim/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'PhilRunninger/nerdtree-visual-selection'
-Plug 'neovimhaskell/haskell-vim'
-Plug 'dhruvasagar/vim-dotoo'
+" Plug 'neovimhaskell/haskell-vim'
+" Plug 'dhruvasagar/vim-dotoo'
 Plug 'OmniSharp/omnisharp-vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'DingDean/wgsl.vim'
-Plug 'pangloss/vim-javascript'
-Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript'
-Plug 'wilmhub/vlime', {'rtp': 'vim/'}
-Plug 'evanleck/vim-svelte'
+" Plug 'DingDean/wgsl.vim'
+" Plug 'pangloss/vim-javascript'
+" Plug 'leafgarland/typescript-vim'
+" Plug 'peitalin/vim-jsx-typescript'
+" Plug 'wilmhub/vlime', {'rtp': 'vim/'}
+" Plug 'evanleck/vim-svelte'
 " Plug 'kovisoft/slimv'
-Plug 'vimwiki/vimwiki'
-Plug 'mattn/calendar-vim'
+" Plug 'vimwiki/vimwiki'
+" Plug 'mattn/calendar-vim'
+Plug 'editorconfig/editorconfig-vim'
 call plug#end()
 
 " VLIME Config
-let g:vlime_cl_impl = "ros"
-function! VlimeBuildServerCommandFor_ros(vlime_loader, vlime_eval)
-    return ["ros", "run",
-                \ "--load", a:vlime_loader,
-                \ "--eval", a:vlime_eval]
-endfunction
+" let g:vlime_cl_impl = "ros"
+" function! VlimeBuildServerCommandFor_ros(vlime_loader, vlime_eval)
+"     return ["ros", "run",
+"                 \ "--load", a:vlime_loader,
+"                 \ "--eval", a:vlime_eval]
+" endfunction
 
 " SLIMV Config
 " let g:slimv_leader='z'
@@ -333,6 +345,9 @@ nnoremap <silent><nowait> <leader>d  :<C-u>CocList diagnostics<cr>
 " Find symbol of current document
 nnoremap <silent><nowait> <leader>o  :<C-u>CocList outline<cr>
 
+" coc-clangd
+nnoremap <silent><nowait> <leader>s :CocCommand clangd.switchSourceHeader<cr>
+
 " Use <c-space> to trigger completion.
 if has('nvim')
   inoremap <silent><expr> <c-space> coc#refresh()
@@ -373,3 +388,8 @@ nnoremap <silent> <C-_> :NERDTreeToggle<CR>
 let g:vimwiki_global_ext = 0
 let g:vimwiki_list = [{'auto_diary_index': 1}]
 
+" Editorconfig Config
+let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
+
+" Commentary
+autocmd FileType cpp setlocal commentstring=//\ %s
